@@ -1,0 +1,347 @@
+{
+  "functions": [
+    {
+      "name": "index",
+      "param": [
+        "req",
+        "res"
+      ],
+      "line": 2,
+      "character": 22,
+      "last": 4,
+      "lastcharacter": 6,
+      "metrics": {
+        "complexity": 1,
+        "parameters": 2,
+        "statements": 1
+      }
+    },
+    {
+      "name": "download",
+      "param": [
+        "req",
+        "res"
+      ],
+      "line": 5,
+      "character": 25,
+      "last": 7,
+      "lastcharacter": 6,
+      "metrics": {
+        "complexity": 1,
+        "parameters": 2,
+        "statements": 1
+      }
+    },
+    {
+      "name": "backend",
+      "param": [
+        "req",
+        "res"
+      ],
+      "line": 8,
+      "character": 24,
+      "last": 17,
+      "lastcharacter": 6,
+      "metrics": {
+        "complexity": 1,
+        "parameters": 2,
+        "statements": 2
+      }
+    },
+    {
+      "name": "gitPull",
+      "param": [
+        "req",
+        "res"
+      ],
+      "line": 18,
+      "character": 24,
+      "last": 47,
+      "lastcharacter": 6,
+      "metrics": {
+        "complexity": 2,
+        "parameters": 2,
+        "statements": 5
+      }
+    },
+    {
+      "name": "gitPull",
+      "param": null,
+      "line": 19,
+      "character": 26,
+      "last": 29,
+      "lastcharacter": 10,
+      "metrics": {
+        "complexity": 1,
+        "parameters": 0,
+        "statements": 1
+      }
+    },
+    {
+      "name": "(empty)",
+      "param": [
+        "error",
+        "stdout",
+        "stderr"
+      ],
+      "line": 20,
+      "character": 40,
+      "last": 28,
+      "lastcharacter": 14,
+      "metrics": {
+        "complexity": 2,
+        "parameters": 3,
+        "statements": 3
+      }
+    },
+    {
+      "name": "decryptData",
+      "param": [
+        "text"
+      ],
+      "line": 31,
+      "character": 30,
+      "last": 41,
+      "lastcharacter": 10,
+      "metrics": {
+        "complexity": 3,
+        "parameters": 1,
+        "statements": 5
+      }
+    },
+    {
+      "name": "demo",
+      "param": [
+        "req",
+        "res"
+      ],
+      "line": 48,
+      "character": 21,
+      "last": 56,
+      "lastcharacter": 6,
+      "metrics": {
+        "complexity": 1,
+        "parameters": 2,
+        "statements": 1
+      }
+    },
+    {
+      "name": "(empty)",
+      "param": [
+        "err",
+        "view"
+      ],
+      "line": 53,
+      "character": 22,
+      "last": 55,
+      "lastcharacter": 10,
+      "metrics": {
+        "complexity": 1,
+        "parameters": 2,
+        "statements": 1
+      }
+    },
+    {
+      "name": "orderReturn",
+      "param": [
+        "req",
+        "res"
+      ],
+      "line": 57,
+      "character": 28,
+      "last": 69,
+      "lastcharacter": 6,
+      "metrics": {
+        "complexity": 1,
+        "parameters": 2,
+        "statements": 1
+      }
+    },
+    {
+      "name": "(empty)",
+      "param": [
+        "callback"
+      ],
+      "line": 59,
+      "character": 23,
+      "last": 64,
+      "lastcharacter": 14,
+      "metrics": {
+        "complexity": 1,
+        "parameters": 1,
+        "statements": 1
+      }
+    },
+    {
+      "name": "(empty)",
+      "param": [
+        "callback"
+      ],
+      "line": 65,
+      "character": 23,
+      "last": 67,
+      "lastcharacter": 14,
+      "metrics": {
+        "complexity": 1,
+        "parameters": 1,
+        "statements": 1
+      }
+    }
+  ],
+  "options": {
+    "undef": false,
+    "maxdepth": 1,
+    "indent": 4,
+    "maxerr": 50
+  },
+  "errors": [
+    {
+      "id": "(error)",
+      "raw": "Blocks are nested too deeply. ({a})",
+      "code": "W073",
+      "evidence": "                if (moment.unix(text).isBetween(moment().add(-1, \"minute\"), moment().add(1, \"minute\"))) {",
+      "line": 33,
+      "character": 105,
+      "scope": "(main)",
+      "a": 2,
+      "reason": "Blocks are nested too deeply. (2)"
+    },
+    {
+      "id": "(error)",
+      "raw": "Blocks are nested too deeply. ({a})",
+      "code": "W073",
+      "evidence": "                } else {",
+      "line": 35,
+      "character": 24,
+      "scope": "(main)",
+      "a": 2,
+      "reason": "Blocks are nested too deeply. (2)"
+    }
+  ],
+  "implieds": [
+    {
+      "name": "module",
+      "line": [
+        1
+      ]
+    },
+    {
+      "name": "Config",
+      "line": [
+        6
+      ]
+    },
+    {
+      "name": "require",
+      "line": [
+        9
+      ]
+    },
+    {
+      "name": "sails",
+      "line": [
+        9,
+        49
+      ]
+    },
+    {
+      "name": "jsFilesBackend",
+      "line": [
+        11
+      ]
+    },
+    {
+      "name": "exec",
+      "line": [
+        20
+      ]
+    },
+    {
+      "name": "moment",
+      "line": [
+        33,
+        33,
+        33
+      ]
+    },
+    {
+      "name": "async",
+      "line": [
+        58,
+        60
+      ]
+    },
+    {
+      "name": "Order",
+      "line": [
+        61
+      ]
+    },
+    {
+      "name": "User",
+      "line": [
+        62
+      ]
+    },
+    {
+      "name": "Product",
+      "line": [
+        66
+      ]
+    },
+    {
+      "name": "callback",
+      "line": [
+        68
+      ]
+    }
+  ],
+  "member": {
+    "exports": 1,
+    "metaView": 1,
+    "index": 1,
+    "readUploaded": 1,
+    "param": 1,
+    "download": 1,
+    "config": 1,
+    "environment": 1,
+    "view": 1,
+    "jsFiles": 1,
+    "title": 1,
+    "description": 1,
+    "keywords": 1,
+    "realHost": 1,
+    "adminurl": 1,
+    "backend": 1,
+    "callback": 1,
+    "stdout": 1,
+    "stderr": 1,
+    "unix": 1,
+    "isBetween": 1,
+    "add": 2,
+    "notFound": 3,
+    "params": 3,
+    "data": 2,
+    "gitPull": 1,
+    "renderView": 1,
+    "name": 1,
+    "lastname": 1,
+    "hobbies": 1,
+    "send": 1,
+    "demo": 1,
+    "waterfall": 1,
+    "parallel": 1,
+    "removeOrder": 1,
+    "body": 4,
+    "order": 4,
+    "_id": 2,
+    "removeOrderFromUser": 1,
+    "addBalance": 1,
+    "amount": 1,
+    "addUserBalance": 1,
+    "modifyQuantity": 1,
+    "product": 2,
+    "quantity": 1,
+    "orderReturn": 1
+  }
+}
