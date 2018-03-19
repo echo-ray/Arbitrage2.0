@@ -63,7 +63,7 @@ module.exports.globals = {
 };
 
 global.mongoose = require('mongoose');
-global.database = "Arbitrage2.0";
+global.database = "Arbitrage";
 global.storageBucket = "wohlig";
 mongoose.Promise = global.Promise;
 global.mongourl = "mongodb://localhost:27017/" + database;
