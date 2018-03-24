@@ -2,6 +2,7 @@ module.exports = _.cloneDeep(require("sails-wohlig-controller"));
 var controller = {
 
     check: function (req, res) {
+        var symbol = req.body.symbol;
         var ccxt = require('ccxt');
         var binance = new ccxt.binance();
         var hitbtc = new ccxt.hitbtc2();
@@ -9,7 +10,10 @@ var controller = {
         async.parallel({
             binance: function (callback) {
                 binance.loadMarkets().then(function (data) {
-                    binance.fetchOHLCV("XRP/ETH", '1m').then(function (data) {
+                    // _.each(binance.symbols, function (n) {
+                    //     console.log(n);
+                    // });
+                    binance.fetchOHLCV(symbol, '1m').then(function (data) {
                         callback(null, convertOHLCV(data));
                     });
                 });
@@ -17,7 +21,10 @@ var controller = {
             },
             hitbtc: function (callback) {
                 hitbtc.loadMarkets().then(function (data) {
-                    hitbtc.fetchOHLCV("XRP/ETH", '1m').then(function (data) {
+                    // _.each(hitbtc.symbols, function (n) {
+                    //     console.log(n);
+                    // });
+                    hitbtc.fetchOHLCV(symbol, '1m').then(function (data) {
                         callback(null, convertOHLCV(data));
                     });
                 });
@@ -65,41 +72,28 @@ var controller = {
 
 
             newArr = _.compact(newArr);
-
-            var weight1 = _.countBy(newArr, function (n) {
-                return _.round(n.difference1, 1);
-            });
-            var weight2 = _.countBy(newArr, function (n) {
-                return _.round(n.difference2, 1);
-            });
-            var weight1Profit = _.map(weight1, function (we1Count, we1) {
-                we1 = parseFloat(we1);
-                var profit = (we1 - costInCommission) * we1Count;
-                return {
-                    rate: we1,
-                    profit: profit,
-                    count: we1Count
-                };
-            });
-            var weight2Profit = _.map(weight2, function (we2Count, we2) {
-                we2 = parseFloat(we2);
-                var profit = (we2 - costInCommission) * we2Count;
-                return {
-                    rate: we2,
-                    profit: profit,
-                    count: we2Count
-                };
-            });
+            // return newArr;
 
 
             return {
-                weight1: _.maxBy(weight1Profit, "profit"),
-                weight2: _.maxBy(weight2Profit, "profit")
+                weight1: Markets.getMaxProfit(newArr, "difference1", costInCommission),
+                weight2: Markets.getMaxProfit(newArr, "difference2", costInCommission),
             };
 
         }
+    },
+    getBinanceSymbols: function (req, res) {
+        var exchange = new ccxt.binance();
+        exchange.loadMarkets().then(function (data) {
+            res.json(exchange.symbols);
+        });
+    },
+    getHitbtcSymbols: function (req, res) {
+        var exchange = new ccxt.hitbtc2();
+        exchange.loadMarkets().then(function (data) {
+            res.json(exchange.symbols);
+        });
     }
-
 
 };
 module.exports = _.assign(module.exports, controller);
