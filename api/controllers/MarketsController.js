@@ -3,12 +3,9 @@ var controller = {
 
     check: function (req, res) {
         var ccxt = require('ccxt');
-        var rates = _.times(20, function (n) {
-            return n * 0.1 + 0.2;
-
-        });
         var binance = new ccxt.binance();
         var hitbtc = new ccxt.hitbtc2();
+        var costInCommission = 0.2;
         async.parallel({
             binance: function (callback) {
                 binance.loadMarkets().then(function (data) {
@@ -75,9 +72,29 @@ var controller = {
             var weight2 = _.countBy(newArr, function (n) {
                 return _.round(n.difference2, 1);
             });
+            var weight1Profit = _.map(weight1, function (we1Count, we1) {
+                we1 = parseFloat(we1);
+                var profit = (we1 - costInCommission) * we1Count;
+                return {
+                    rate: we1,
+                    profit: profit,
+                    count: we1Count
+                };
+            });
+            var weight2Profit = _.map(weight2, function (we2Count, we2) {
+                we2 = parseFloat(we2);
+                var profit = (we2 - costInCommission) * we2Count;
+                return {
+                    rate: we2,
+                    profit: profit,
+                    count: we2Count
+                };
+            });
+
+
             return {
-                weight1: weight1,
-                weight2: weight2
+                weight1: _.maxBy(weight1Profit, "profit"),
+                weight2: _.maxBy(weight2Profit, "profit")
             };
 
         }
