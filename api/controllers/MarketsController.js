@@ -9,7 +9,7 @@ var controller = {
         async.parallel({
             binance: function (callback) {
                 binance.loadMarkets().then(function (data) {
-                    binance.fetchOHLCV("XRP/BTC", '1m').then(function (data) {
+                    binance.fetchOHLCV("XRP/ETH", '1m').then(function (data) {
                         callback(null, convertOHLCV(data));
                     });
                 });
@@ -17,7 +17,7 @@ var controller = {
             },
             hitbtc: function (callback) {
                 hitbtc.loadMarkets().then(function (data) {
-                    hitbtc.fetchOHLCV("XRP/BTC", '1m').then(function (data) {
+                    hitbtc.fetchOHLCV("XRP/ETH", '1m').then(function (data) {
                         callback(null, convertOHLCV(data));
                     });
                 });
@@ -46,9 +46,9 @@ var controller = {
                     var difference2 = 0;
 
                     if (n.rate > object.rate) {
-                        difference1 = (n.rate - object.rate) / object.rate * 100;
+                        difference2 = (n.rate - object.rate) / object.rate * 100;
                     } else if (n.rate < object.rate) {
-                        difference2 = (object.rate - n.rate) / n.rate * 100;
+                        difference1 = (object.rate - n.rate) / n.rate * 100;
                     }
 
                     return {
