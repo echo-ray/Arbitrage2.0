@@ -3,7 +3,10 @@ var controller = {
 
     check: function (req, res) {
         var ccxt = require('ccxt');
+        var rates = _.times(20, function (n) {
+            return n * 0.1 + 0.2;
 
+        });
         var binance = new ccxt.binance();
         var hitbtc = new ccxt.hitbtc2();
         async.parallel({
@@ -46,9 +49,9 @@ var controller = {
                     var difference2 = 0;
 
                     if (n.rate > object.rate) {
-                        difference1 = n.rate - object.rate;
+                        difference1 = (n.rate - object.rate) / object.rate * 100;
                     } else if (n.rate < object.rate) {
-                        difference2 = object.rate - n.rate;
+                        difference2 = (object.rate - n.rate) / n.rate * 100;
                     }
 
                     return {
@@ -62,9 +65,20 @@ var controller = {
                     return undefined;
                 }
             });
+
+
             newArr = _.compact(newArr);
-            console.log(newArr.length);
-            return newArr;
+
+            var weight1 = _.countBy(newArr, function (n) {
+                return _.round(n.difference1, 1);
+            });
+            var weight2 = _.countBy(newArr, function (n) {
+                return _.round(n.difference2, 1);
+            });
+            return {
+                weight1: weight1,
+                weight2: weight2
+            };
 
         }
     }
