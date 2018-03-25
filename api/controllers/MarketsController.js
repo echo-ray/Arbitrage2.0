@@ -2,6 +2,7 @@ module.exports = _.cloneDeep(require("sails-wohlig-controller"));
 var controller = {
 
     check: function (req, res) {
+        req.setTimeout(600 * 1000);
         var binance = new ccxt.binance();
         var hitbtc = new ccxt.hitbtc2();
         var costInCommission = 0.2;
