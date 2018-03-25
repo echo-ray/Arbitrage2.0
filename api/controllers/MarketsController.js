@@ -31,6 +31,7 @@ var controller = {
                 callback(null, _.intersection(binance.symbols, hitbtc.symbols));
             },
             function (unionSymbols, callback) {
+                unionSymbols = _.slice(unionSymbols, 0, 1);
                 async.concatSeries(unionSymbols, function (symbol, callback) {
                     async.parallel({
                         symbol: function (callback) {

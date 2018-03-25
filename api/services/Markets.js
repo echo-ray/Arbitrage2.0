@@ -98,7 +98,8 @@ var model = {
         return _.map(data, function (n) {
             return {
                 timestamp: n[0],
-                rate: n[1]
+                rate: n[1],
+                volume: n[5]
             };
         });
     }
