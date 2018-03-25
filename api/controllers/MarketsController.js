@@ -2,7 +2,7 @@ module.exports = _.cloneDeep(require("sails-wohlig-controller"));
 var controller = {
 
     check: function (req, res) {
-        req.setTimeout(600 * 1000);
+        req.setTimeout(60000 * 1000);
         var binance = new ccxt.binance();
         var hitbtc = new ccxt.hitbtc2();
         var costInCommission = 0.2;
@@ -13,7 +13,7 @@ var controller = {
                         binance.loadMarkets().then(function (data) {
                             callback();
                         }).catch(function (err) {
-                            cosnole.log(err);
+                            console.log(err);
                             callback(err);
                         });
                     },
@@ -21,7 +21,7 @@ var controller = {
                         hitbtc.loadMarkets().then(function (data) {
                             callback();
                         }).catch(function (err) {
-                            cosnole.log(err);
+                            console.log(err);
                             callback(err);
                         });
                     }
@@ -31,7 +31,8 @@ var controller = {
                 callback(null, _.intersection(binance.symbols, hitbtc.symbols));
             },
             function (unionSymbols, callback) {
-                // unionSymbols = _.slice(unionSymbols, 0, 10);
+                console.log(unionSymbols.length);
+                unionSymbols = _.slice(unionSymbols, 0, 200);
                 async.concatSeries(unionSymbols, function (symbol, callback) {
                     async.parallel({
                         symbol: function (callback) {
@@ -41,7 +42,7 @@ var controller = {
                             binance.fetchOHLCV(symbol, '1m').then(function (data) {
                                 callback(null, Markets.convertOHLCV(data));
                             }).catch(function (err) {
-                                cosnole.log(err);
+                                console.log(err);
                                 callback(err);
                             });
                         },
@@ -49,7 +50,7 @@ var controller = {
                             hitbtc.fetchOHLCV(symbol, '1m').then(function (data) {
                                 callback(null, Markets.convertOHLCV(data));
                             }).catch(function (err) {
-                                cosnole.log(err);
+                                console.log(err);
                                 callback(err);
                             });
                         }
