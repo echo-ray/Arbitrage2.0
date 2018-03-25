@@ -1358,37 +1358,3 @@ var newArr = [{
         volume: 1844703.2450599198
     }
 ];
-
-
-
-/**
- * Response
- * [ { symbol: 'TRX/BTC',
-    weight1: { rate: 0.4, profit: 1.6, count: 8 },
-    weight2: { rate: 0.4, profit: 6, count: 30 },
-    volume: 2844085.5676800003 },
-  { symbol: 'BCH/ETH',
-    weight1: { rate: 0.3, profit: 3.3999999999999995, count: 34 },
-    weight2: { rate: 0.2, profit: 0, count: 1 },
-    volume: 1164692.37694852 },
-  { symbol: 'ZEC/BTC',
-    weight1: { rate: 0.3, profit: 1.9999999999999996, count: 20 },
-    weight2: { rate: 0.3, profit: 0.29999999999999993, count: 3 },
-    volume: 5018989.564266047 },
-  { symbol: 'BCH/BTC',
-    weight1: { rate: 0.3, profit: 0.6999999999999998, count: 7 },
-    weight2: { rate: 0.3, profit: 0.4999999999999999, count: 5 },
-    volume: 1656789.0642248401 },
-  { symbol: 'DASH/BTC',
-    weight1: { rate: 0.3, profit: 0.09999999999999998, count: 1 },
-    weight2: { rate: 0.3, profit: 0.6999999999999998, count: 7 },
-    volume: 16488796.32633492 },
-  { symbol: 'XMR/BTC',
-    weight1: { rate: 0.3, profit: 0.09999999999999998, count: 1 },
-    weight2: { rate: 0.3, profit: 0.5999999999999999, count: 6 },
-    volume: 1681738.74543024 },
-  { symbol: 'XRP/BTC',
-    weight1: { rate: 0.3, profit: 0.09999999999999998, count: 1 },
-    weight2: { rate: 0.2, profit: 0, count: 3 },
-    volume: 1844703.2450599198 } ]
- */
