@@ -102,6 +102,71 @@ var model = {
                 volume: n[5]
             };
         });
+    },
+    getVolumeAndFilter: function (data, callback) {
+
+        var btcPrice, ethPrice;
+        async.waterfall([
+            function (callback) {
+                var options = {
+                    method: 'GET',
+                    url: "https://api.hitbtc.com/api/2/public/ticker/BTCUSD"
+                };
+                request(options, function (err, response, body) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        btcPrice = JSON.parse(body).last;
+                    }
+                    callback(err);
+                });
+            },
+            function (callback) {
+                var options = {
+                    method: 'GET',
+                    url: "https://api.hitbtc.com/api/2/public/ticker/ETHUSD"
+                };
+                request(options, function (err, response, body) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        ethPrice = JSON.parse(body).last;
+                    }
+                    callback(err);
+                });
+            },
+            function (callback) {
+                async.concatSeries(data, function (n, callback) {
+                    var newSymbol = _.replace(n.symbol, "/", "");
+                    var options = {
+                        method: 'GET',
+                        url: 'https://api.hitbtc.com/api/2/public/ticker/' + newSymbol
+                    };
+                    request(options, function (err, response, body) {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            n.volume = JSON.parse(body).volumeQuote;
+                        }
+                        callback(err, n);
+                    });
+                }, callback);
+            },
+            function (data, callback) {
+                console.log(btcPrice, ethPrice);
+                _.each(data, function (n) {
+                    if (/BTC/.test(n.symbol)) {
+                        n.volume = n.volume * btcPrice;
+                    } else if (/ETH/.test(n.symbol)) {
+                        n.volume = n.volume * ethPrice;
+                    }
+                });
+                data = _.filter(data, function (n) {
+                    return n.volume >= Config.minimumVolumeInUSD;
+                });
+                callback(null, data);
+            }
+        ], callback);
     }
 
 };

@@ -26,6 +26,7 @@ module.exports = mongoose.model('Config', schema);
 
 var models = {
     maxRow: 10,
+    minimumVolumeInUSD: 100000,
     getForeignKeys: function (schema) {
         var arr = [];
         _.each(schema.tree, function (n, name) {
