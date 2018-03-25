@@ -3,7 +3,7 @@ var controller = {
 
     check: function (req, res) {
         var symbol = req.body.symbol;
-        var ccxt = require('ccxt');
+
         var binance = new ccxt.binance();
         var hitbtc = new ccxt.hitbtc2();
         var costInCommission = 0.2;

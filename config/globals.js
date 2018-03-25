@@ -71,6 +71,7 @@ mongoose.connect(mongourl, {
     useMongoClient: true
 }, function (err, db) {});
 
+global.ccxt = require('ccxt');
 
 
 // Mongoose Globals
