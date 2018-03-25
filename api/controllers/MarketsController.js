@@ -1217,3 +1217,43 @@ var data = [{
         }
     }
 ];
+// var dataETH = _.filter(data, function (n) {
+//     if (/ETH/.test(n.symbol)) {
+//         return n;
+//     }
+// });
+// var dataBTC = _.filter(data, function (n) {
+//     if (/BTC/.test(n.symbol)) {
+//         return n;
+//     }
+// });
+// data = _.slice(data, 0, 10);
+console.log(data.length);
+async.concatSeries(data, function (n, callback) {
+    var newSymbol = _.replace(n.symbol, "/", "");
+    var options = {
+        method: 'GET',
+        url: 'https://api.hitbtc.com/api/2/public/ticker/' + newSymbol
+    };
+    request(options, function (err, response, body) {
+        if (err) {
+            console.log(error);
+        }
+        n.volume = JSON.parse(body).volumeQuote;
+        callback(null, n);
+    });
+
+}, function (err, data) {
+    _.each(data, function (n) {
+        if (/BTC/.test(n.symbol)) {
+            n.volume = n.volume * 8568;
+        } else if (/ETH/.test(n.symbol)) {
+            n.volume = n.volume * 518;
+        }
+    });
+    data = _.filter(data, function () {
+        return n.volume > 1000000;
+    });
+    console.log(data.length);
+    console.log(data);
+});
