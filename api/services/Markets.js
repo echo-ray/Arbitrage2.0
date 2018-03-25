@@ -93,6 +93,15 @@ var model = {
             weight2: Markets.getMaxProfit(newArr, "difference2", costInCommission),
         };
 
+    },
+    convertOHLCV: function (data) {
+        return _.map(data, function (n) {
+            return {
+                timestamp: n[0],
+                rate: n[1]
+            };
+        });
     }
+
 };
 module.exports = _.assign(module.exports, exports, model);

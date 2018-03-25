@@ -10,37 +10,26 @@ var controller = {
         async.parallel({
             binance: function (callback) {
                 binance.loadMarkets().then(function (data) {
-                    // _.each(binance.symbols, function (n) {
-                    //     console.log(n);
-                    // });
-                    binance.fetchOHLCV(symbol, '1m').then(function (data) {
-                        callback(null, convertOHLCV(data));
-                    });
+                    callback();
                 });
             },
             hitbtc: function (callback) {
                 hitbtc.loadMarkets().then(function (data) {
-                    // _.each(hitbtc.symbols, function (n) {
-                    //     console.log(n);
-                    // });
-                    hitbtc.fetchOHLCV(symbol, '1m').then(function (data) {
-                        callback(null, convertOHLCV(data));
-                    });
+                    callback();
                 });
             }
         }, function (err, data) {
-            res.callback(err, Markets.convert2MarketsData(data.binance, data.hitbtc));
+            var binanceData, hitbtcData;
+            binance.fetchOHLCV(symbol, '1m').then(function (data) {
+                binanceData = Markets.convertOHLCV(data);
+            });
+            hitbtc.fetchOHLCV(symbol, '1m').then(function (data) {
+                hitbtcData = Markets.convertOHLCV(data);
+            });
+            res.callback(err, Markets.convert2MarketsData(binanceData, hitbtcData));
         });
 
 
-        function convertOHLCV(data) {
-            return _.map(data, function (n) {
-                return {
-                    timestamp: n[0],
-                    rate: n[1]
-                };
-            });
-        }
 
 
     },
@@ -55,6 +44,7 @@ var controller = {
         exchange.loadMarkets().then(function (data) {
             res.json(exchange.symbols);
         });
+        console.log();
     },
 
 
