@@ -58,7 +58,7 @@ var model = {
         var retVal = _.maxBy(weightProfit, "profit");
         return retVal;
     },
-    convert2MarketsData: function (market1, market2, costInCommission) {
+    convert2MarketsData: function (symbol, market1, market2, costInCommission) {
         var newArr = _.map(market1, function (n) {
             var object = _.find(market2, function (m) {
                 return n.timestamp == m.timestamp;
@@ -88,6 +88,7 @@ var model = {
         // return newArr;
 
         return {
+            symbol: symbol,
             weight1: Markets.getMaxProfit(newArr, "difference1", costInCommission),
             weight2: Markets.getMaxProfit(newArr, "difference2", costInCommission),
         };

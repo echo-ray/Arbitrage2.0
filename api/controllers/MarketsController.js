@@ -12,6 +12,7 @@ var controller = {
                         binance.loadMarkets().then(function (data) {
                             callback();
                         }).catch(function (err) {
+                            cosnole.log(err);
                             callback(err);
                         });
                     },
@@ -19,6 +20,7 @@ var controller = {
                         hitbtc.loadMarkets().then(function (data) {
                             callback();
                         }).catch(function (err) {
+                            cosnole.log(err);
                             callback(err);
                         });
                     }
@@ -28,13 +30,17 @@ var controller = {
                 callback(null, _.intersection(binance.symbols, hitbtc.symbols));
             },
             function (unionSymbols, callback) {
-                console.log(unionSymbols[0]);
-                async.concatSeries([unionSymbols[0]], function (symbol, callback) {
+                console.log(unionSymbols.length);
+                async.concatSeries(_.slice(unionSymbols, 0, 30), function (symbol, callback) {
                     async.parallel({
+                        symbol: function (callback) {
+                            callback(null, symbol);
+                        },
                         binanceData: function (callback) {
                             binance.fetchOHLCV(symbol, '1m').then(function (data) {
                                 callback(null, Markets.convertOHLCV(data));
                             }).catch(function (err) {
+                                cosnole.log(err);
                                 callback(err);
                             });
                         },
@@ -42,6 +48,7 @@ var controller = {
                             hitbtc.fetchOHLCV(symbol, '1m').then(function (data) {
                                 callback(null, Markets.convertOHLCV(data));
                             }).catch(function (err) {
+                                cosnole.log(err);
                                 callback(err);
                             });
                         }
@@ -51,7 +58,7 @@ var controller = {
             },
             function (allSymbolsData, callback) {
                 var returnData = _.map(allSymbolsData, function (data) {
-                    return Markets.convert2MarketsData(data.binanceData, data.hitbtcData, costInCommission);
+                    return Markets.convert2MarketsData(data.symbol, data.binanceData, data.hitbtcData, costInCommission);
                 });
                 callback(null, returnData);
             }
