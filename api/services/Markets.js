@@ -57,6 +57,42 @@ var model = {
         });
         var retVal = _.maxBy(weightProfit, "profit");
         return retVal;
+    },
+    convert2MarketsData: function (market1, market2) {
+        var newArr = _.map(market1, function (n) {
+            var object = _.find(market2, function (m) {
+                return n.timestamp == m.timestamp;
+            });
+            if (object) {
+                var difference1 = 0;
+                var difference2 = 0;
+                if (n.rate > object.rate) {
+                    difference2 = (n.rate - object.rate) / object.rate * 100;
+                } else if (n.rate < object.rate) {
+                    difference1 = (object.rate - n.rate) / n.rate * 100;
+                }
+                return {
+                    timestamp: n.timestamp,
+                    rate1: n.rate,
+                    rate2: object.rate,
+                    difference1: difference1,
+                    difference2: difference2
+                };
+            } else {
+                return undefined;
+            }
+        });
+
+
+        newArr = _.compact(newArr);
+        // return newArr;
+
+
+        return {
+            weight1: Markets.getMaxProfit(newArr, "difference1", costInCommission),
+            weight2: Markets.getMaxProfit(newArr, "difference2", costInCommission),
+        };
+
     }
 };
 module.exports = _.assign(module.exports, exports, model);
