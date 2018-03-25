@@ -17,7 +17,6 @@ var controller = {
                         callback(null, convertOHLCV(data));
                     });
                 });
-
             },
             hitbtc: function (callback) {
                 hitbtc.loadMarkets().then(function (data) {
@@ -51,13 +50,11 @@ var controller = {
                 if (object) {
                     var difference1 = 0;
                     var difference2 = 0;
-
                     if (n.rate > object.rate) {
                         difference2 = (n.rate - object.rate) / object.rate * 100;
                     } else if (n.rate < object.rate) {
                         difference1 = (object.rate - n.rate) / n.rate * 100;
                     }
-
                     return {
                         timestamp: n.timestamp,
                         rate1: n.rate,
@@ -93,7 +90,8 @@ var controller = {
         exchange.loadMarkets().then(function (data) {
             res.json(exchange.symbols);
         });
-    }
+    },
+
 
 };
 module.exports = _.assign(module.exports, controller);
