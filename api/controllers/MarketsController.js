@@ -7,30 +7,40 @@ var controller = {
         var binance = new ccxt.binance();
         var hitbtc = new ccxt.hitbtc2();
         var costInCommission = 0.2;
-        async.parallel({
-            binance: function (callback) {
-                binance.loadMarkets().then(function (data) {
-                    callback();
-                });
+
+        async.waterfall([
+            function (callback) {
+                async.parallel({
+                    binance: function (callback) {
+                        binance.loadMarkets().then(function (data) {
+                            callback();
+                        });
+                    },
+                    hitbtc: function (callback) {
+                        hitbtc.loadMarkets().then(function (data) {
+                            callback();
+                        });
+                    }
+                }, callback);
             },
-            hitbtc: function (callback) {
-                hitbtc.loadMarkets().then(function (data) {
-                    callback();
-                });
+            function (data, callback) {
+                async.parallel({
+                    binanceData: function (callback) {
+                        binance.fetchOHLCV(symbol, '1m').then(function (data) {
+                            callback(null, Markets.convertOHLCV(data));
+                        });
+                    },
+                    hitbtcData: function (callback) {
+                        hitbtc.fetchOHLCV(symbol, '1m').then(function (data) {
+                            callback(null, Markets.convertOHLCV(data));
+                        });
+                    }
+                }, callback);
+            },
+            function (data, callback) {
+                callback(null, Markets.convert2MarketsData(data.binanceData, data.hitbtcData, costInCommission));
             }
-        }, function (err, data) {
-            var binanceData, hitbtcData;
-            binance.fetchOHLCV(symbol, '1m').then(function (data) {
-                binanceData = Markets.convertOHLCV(data);
-            });
-            hitbtc.fetchOHLCV(symbol, '1m').then(function (data) {
-                hitbtcData = Markets.convertOHLCV(data);
-            });
-            res.callback(err, Markets.convert2MarketsData(binanceData, hitbtcData));
-        });
-
-
-
+        ], res.callback);
 
     },
     getBinanceSymbols: function (req, res) {
