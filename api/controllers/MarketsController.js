@@ -3,7 +3,7 @@ var controller = {
 
     check: function (req, res) {
         req.setTimeout(60000 * 1000);
-        var binance = new ccxt.binance();
+        var binance = new ccxt.bitfinex2();
         var hitbtc = new ccxt.hitbtc2();
         var costInCommission = 0.2;
         async.waterfall([
@@ -32,7 +32,8 @@ var controller = {
             },
             function (unionSymbols, callback) {
                 console.log(unionSymbols.length);
-                unionSymbols = _.slice(unionSymbols, 0, 200);
+                unionSymbols = _.slice(unionSymbols, 20, 40);
+                console.log(unionSymbols.length);
                 async.concatSeries(unionSymbols, function (symbol, callback) {
                     async.parallel({
                         symbol: function (callback) {
