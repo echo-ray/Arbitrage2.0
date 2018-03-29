@@ -3,7 +3,7 @@ var controller = {
 
     check: function (req, res) {
         req.setTimeout(60000 * 1000);
-        var binance = new ccxt.bitfinex2();
+        var binance = new ccxt.binance();
         var hitbtc = new ccxt.hitbtc2();
         var costInCommission = 0.2;
         async.waterfall([
