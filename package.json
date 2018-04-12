@@ -6,6 +6,7 @@
   "keywords": [],
   "dependencies": {
     "@google-cloud/storage": "^1.4.0",
+    "as-table": "^1.0.31",
     "async": "^2.5.0",
     "autoprefixer": "^7.1.4",
     "ccxt": "^1.11.171",
@@ -55,6 +56,7 @@
     "mongoose-validators": "^0.1.0",
     "monguurl": "^0.1.0",
     "node-binance-api": "^0.4.25",
+    "node-sass": "^4.8.3",
     "node-xlsx": "^0.11.0",
     "passport": "^0.4.0",
     "passport-facebook": "^2.1.1",
@@ -70,7 +72,8 @@
     "sails-wohlig-controller": "^0.0.4",
     "sails-wohlig-service": "^0.0.11",
     "sendgrid": "^5.2.3",
-    "skipper-gclouds": "^1.0.1"
+    "skipper-gclouds": "^1.0.1",
+    "uuid": "^3.2.1"
   },
   "scripts": {
     "debug": "node debug app.js",

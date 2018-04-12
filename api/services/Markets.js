@@ -103,8 +103,11 @@ var model = {
             };
         });
     },
-    getVolumeAndFilter: function (data, callback) {
 
+
+
+
+    getVolumeAndFilter: function (data, callback) {
         var btcPrice, ethPrice;
         async.waterfall([
             function (callback) {

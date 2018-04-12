@@ -22,7 +22,7 @@ var schema = new Schema({
     photo: {
         type: String,
         default: "",
-        required: true,
+        // required: true,
         excel: [{
             name: "Photo Val"
         }, {
