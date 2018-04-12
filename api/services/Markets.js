@@ -219,8 +219,8 @@ var model = {
                     var ratio = max / min;
                     console.log("binanaceRate---min", min);
                     console.log("HitbtcRate---max", max);
-                    console.log("HitbtcRate---ratio", ratio);
-                    callback(null, "Success")
+                    console.log("HitbtcRate---ratio", Math.round(ratio * 100000) / 100000);
+                    callback(null, "Success");
                 }
             });
     },
@@ -242,7 +242,15 @@ var model = {
                 if (err || _.isEmpty(result)) {
                     callback(err);
                 } else {
-                    console.log("result---Sell", result);
+                    var arr = Object.keys(result).map(function (key) {
+                        return result[key];
+                    });
+                    var min = Math.min.apply(null, arr);
+                    var max = Math.max.apply(null, arr);
+                    var ratio = max / min;
+                    console.log("binanaceRate---min", min);
+                    console.log("HitbtcRate---max", max);
+                    console.log("HitbtcRate---ratio", Math.round(ratio * 100000) / 100000);
                     callback(null, "Success");
                 }
             });
