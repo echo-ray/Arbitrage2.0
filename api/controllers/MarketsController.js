@@ -81,12 +81,15 @@ var controller = {
         ], res.callback);
 
     },
+
     getBinanceSymbols: function (req, res) {
         var exchange = new ccxt.binance();
         exchange.loadMarkets().then(function (data) {
             res.json(exchange.symbols);
         });
     },
+
+
     getHitbtcSymbols: function (req, res) {
         var exchange = new ccxt.hitbtc2();
         exchange.loadMarkets().then(function (data) {
@@ -94,69 +97,61 @@ var controller = {
         });
     },
 
-    getAllOrdersForUsd: function (req, res) {
-        // var exchange1 = new ccxt.binance({
-        //     apiKey: "vmPUZE6mv9SD5VNHk4HlWFsOr6aKE2zvsw0MuIgwCIPy6utIco14y7Ju91duEh8A",
-        //     secret: "NhqPtmdSJYdKjVHjA7PZj4Mge3R5YNiP1e3UZjInClVN65XAbvqqM6A7H5fATj0j",
-        //     enableRateLimit: true,
-        //     // verbose: true,
-        // })
-        // var asTable = require('as-table')
 
-        var bitfinex = new ccxt.bitfinex({
-            verbose: true
-        })
-
-        console.log(bitfinex.id, bitfinex.loadMarkets())
-
-        console.log(bitfinex.id, bitfinex.fetchTicker('BTC/USD'))
-
-        // var exchange1 = new ccxt.binance();
-
-        // exchange1.loadMarkets().then(function (data) {
-        //     _.forEach(exchange1.symbols, function (n) {
-        //         exchange1.fetchOrderBook(n).then(function (data) {
-        //             console.log("datadata", data);
-        //         });
-        //     })
-        // });
-
-        // exchange1.loadMarkets().then(function (data) {
-        //     var tickers = exchange1.fetchTickers()
-        //     console.log('----------------------tickers----------------------------------', tickers)
-        //     console.log('Fetched', Object.values(tickers).length.toString().green, 'tickers:')
-        //     log(asTable.configure({
-        //         delimiter: ' | '.dim,
-        //         right: true
-        //     })(
-        //         ccxt.sortBy(Object.values(tickers), 'quoteVolume', true)
-        //         .slice(0, 20)
-        //         .map(ticker => ({
-        //             symbol: ticker['symbol'],
-        //             price: ticker['last'].toFixed(8),
-        //             datetime: ticker['datetime'],
-        //         }))))
-
-        // });
-
-
-        // try {
-        //     var response = exchange1.fetchOrderBook([
-        //         'ADA/BTC'
-        //     ])
-        //     console.log(response);
-        //     console.log('Succeeded.')
-        // } catch (e) {
-        //     console.log('--------------------------------------------------------')
-        //     // console.log(e.constructor.name, e.message)
-        //     console.log('--------------------------------------------------------')
-        //     // console.log(exchange1.last_http_response)
-        //     console.log('Failed.')
-        // }
+    getAllOrdersForBinance: function (req, res) {
+        if (req.body) {
+            Markets.getAllOrdersForBinance(req.body, res.callback);
+        } else {
+            res.json({
+                value: false,
+                data: {
+                    message: "Invalid Request"
+                }
+            })
+        }
     },
 
+    getAllOrdersForHitbtc: function (req, res) {
+        if (req.body) {
+            Markets.getAllOrdersForHitbtc(req.body, res.callback);
+        } else {
+            res.json({
+                value: false,
+                data: {
+                    message: "Invalid Request"
+                }
+            })
+        }
+    },
+
+    compareHitbtcAndBinanceBuy: function (req, res) {
+        if (req.body) {
+            Markets.compareHitbtcAndBinanceBuy(req.body, res.callback);
+        } else {
+            res.json({
+                value: false,
+                data: {
+                    message: "Invalid Request"
+                }
+            })
+        }
+    },
+
+    compareHitbtcAndBinanceSell: function (req, res) {
+        if (req.body) {
+            Markets.compareHitbtcAndBinanceSell(req.body, res.callback);
+        } else {
+            res.json({
+                value: false,
+                data: {
+                    message: "Invalid Request"
+                }
+            })
+        }
+    },
 
 };
+
 module.exports = _.assign(module.exports, controller);
 
 

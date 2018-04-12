@@ -73,6 +73,8 @@ mongoose.connect(mongourl, {
 
 global.ccxt = require('ccxt');
 
+global.symbol = 'XRP/BTC';
+
 
 // Mongoose Globals
 global.ObjectId = mongoose.Types.ObjectId;

@@ -58,6 +58,7 @@ var model = {
         var retVal = _.maxBy(weightProfit, "profit");
         return retVal;
     },
+
     convert2MarketsData: function (symbol, market1, market2, costInCommission) {
         var newArr = _.map(market1, function (n) {
             var object = _.find(market2, function (m) {
@@ -94,6 +95,7 @@ var model = {
         };
 
     },
+
     convertOHLCV: function (data) {
         return _.map(data, function (n) {
             return {
@@ -103,9 +105,6 @@ var model = {
             };
         });
     },
-
-
-
 
     getVolumeAndFilter: function (data, callback) {
         var btcPrice, ethPrice;
@@ -170,6 +169,83 @@ var model = {
                 callback(null, data);
             }
         ], callback);
+    },
+
+    //get orderbooks
+
+    getAllOrdersForBinance: function (data, callback) {
+        var exchange = new ccxt.binance();
+        exchange.loadMarkets().then(function (data) {
+            exchange.fetchOrderBook(symbol).then(function (data) {
+                callback(null, data)
+            })
+        });
+    },
+
+    getAllOrdersForHitbtc: function (data, callback) {
+        var exchange = new ccxt.hitbtc2();
+        exchange.loadMarkets().then(function (data) {
+            exchange.fetchOrderBook(symbol, 5, {
+                // this parameter is exchange-specific, all extra params have unique names per exchange
+                'group': 1, // 1 = orders are grouped by price, 0 = orders are separate
+            }).then(function (data) {
+                callback(null, data)
+            })
+        });
+    },
+
+    compareHitbtcAndBinanceBuy: function (data, callback) {
+        async.parallel({
+                Binance: function (callback) {
+                    Markets.getAllOrdersForBinance(data, function (err, data) {
+                        callback(null, data.asks[0][0]);
+                    })
+                },
+                Hitbtc: function (callback) {
+                    Markets.getAllOrdersForHitbtc(data, function (err, data) {
+                        callback(null, data.asks[0][0]);
+                    })
+                }
+            },
+            function (err, result) {
+                if (err || _.isEmpty(result)) {
+                    callback(err);
+                } else {
+                    var arr = Object.keys(result).map(function (key) {
+                        return result[key];
+                    });
+                    var min = Math.min.apply(null, arr);
+                    var max = Math.max.apply(null, arr);
+                    var ratio = max / min;
+                    console.log("binanaceRate---min", min);
+                    console.log("HitbtcRate---max", max);
+                    console.log("HitbtcRate---ratio", ratio);
+                    callback(null, "Success")
+                }
+            });
+    },
+
+    compareHitbtcAndBinanceSell: function (data, callback) {
+        async.parallel({
+                Binance: function (callback) {
+                    Markets.getAllOrdersForBinance(data, function (err, data) {
+                        callback(null, data.bids[0][0]);
+                    })
+                },
+                Hitbtc: function (callback) {
+                    Markets.getAllOrdersForHitbtc(data, function (err, data) {
+                        callback(null, data.bids[0][0]);
+                    })
+                }
+            },
+            function (err, result) {
+                if (err || _.isEmpty(result)) {
+                    callback(err);
+                } else {
+                    console.log("result---Sell", result);
+                    callback(null, "Success");
+                }
+            });
     }
 
 };
