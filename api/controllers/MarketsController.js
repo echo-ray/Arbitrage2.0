@@ -150,6 +150,45 @@ var controller = {
         }
     },
 
+    fetchOrders: function (req, res) {
+        if (req.body) {
+            Markets.fetchOrders(req.body, res.callback);
+        } else {
+            res.json({
+                value: false,
+                data: {
+                    message: "Invalid Request"
+                }
+            })
+        }
+    },
+
+    placeOrders: function (req, res) {
+        if (req.body) {
+            Markets.placeOrders(req.body, res.callback);
+        } else {
+            res.json({
+                value: false,
+                data: {
+                    message: "Invalid Request"
+                }
+            })
+        }
+    },
+
+    cancelOrder: function (req, res) {
+        if (req.body) {
+            Markets.cancelOrder(req.body, res.callback);
+        } else {
+            res.json({
+                value: false,
+                data: {
+                    message: "Invalid Request"
+                }
+            })
+        }
+    },
+
 };
 
 module.exports = _.assign(module.exports, controller);

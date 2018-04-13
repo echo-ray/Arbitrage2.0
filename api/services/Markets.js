@@ -199,12 +199,12 @@ var model = {
                 Binance: function (callback) {
                     Markets.getAllOrdersForBinance(data, function (err, data) {
                         callback(null, data.asks[0][0]);
-                    })
+                    });
                 },
                 Hitbtc: function (callback) {
                     Markets.getAllOrdersForHitbtc(data, function (err, data) {
                         callback(null, data.asks[0][0]);
-                    })
+                    });
                 }
             },
             function (err, result) {
@@ -214,13 +214,35 @@ var model = {
                     var arr = Object.keys(result).map(function (key) {
                         return result[key];
                     });
+                    x ``
                     var min = Math.min.apply(null, arr);
                     var max = Math.max.apply(null, arr);
                     var ratio = max / min;
-                    console.log("binanaceRate---min", min);
-                    console.log("HitbtcRate---max", max);
-                    console.log("HitbtcRate---ratio", Math.round(ratio * 100000) / 100000);
-                    callback(null, "Success");
+
+                    console.log("arrarr", _.findKey(result, function (o) {
+                        return Math.max.apply(null, arr);
+                    }));
+
+                    var maxArr = {};
+                    maxArr[_.findKey(result, function (o) {
+                        return Math.max.apply(null, arr);
+                    })] = max;
+                    maxArr.max = max;
+                    console.log("maxarr---", maxArr);
+
+                    // console.log("binanaceRateBuy", result.Binance);
+                    // console.log("HitbtcRateBuy", result.Hitbtc);
+                    // console.log("---min", min);
+                    // console.log("---max", max);
+                    // console.log("---ratioBuy", Math.round(ratio * 100000) / 100000);
+                    var marketData = {};
+                    marketData.binanaceRateBuy = result.Binance;
+                    marketData.HitbtcRateBuy = result.Hitbtc;
+                    marketData.max = max;
+                    marketData.min = min;
+                    marketData.ratio = Math.round(ratio * 100000) / 100000;
+                    marketData.maxLow = max / minProfitRate;
+                    callback(null, marketData);
                 }
             });
     },
@@ -230,12 +252,12 @@ var model = {
                 Binance: function (callback) {
                     Markets.getAllOrdersForBinance(data, function (err, data) {
                         callback(null, data.bids[0][0]);
-                    })
+                    });
                 },
                 Hitbtc: function (callback) {
                     Markets.getAllOrdersForHitbtc(data, function (err, data) {
                         callback(null, data.bids[0][0]);
-                    })
+                    });
                 }
             },
             function (err, result) {
@@ -248,13 +270,73 @@ var model = {
                     var min = Math.min.apply(null, arr);
                     var max = Math.max.apply(null, arr);
                     var ratio = max / min;
-                    console.log("binanaceRate---min", min);
-                    console.log("HitbtcRate---max", max);
-                    console.log("HitbtcRate---ratio", Math.round(ratio * 100000) / 100000);
-                    callback(null, "Success");
+                    // console.log("binanaceRateSell", result.Binance);
+                    // console.log("HitbtcRateSell", result.Hitbtc);
+                    // console.log("---min", min);
+                    // console.log("---max", max);
+                    // console.log("---ratioSell", Math.round(ratio * 100000) / 100000);
+                    var marketData = {};
+                    marketData.binanaceRateSell = result.Binance;
+                    marketData.HitbtcRateSell = result.Hitbtc;
+                    marketData.max = max;
+                    marketData.min = min;
+                    marketData.ratio = Math.round(ratio * 100000) / 100000;
+                    marketData.minHigh = min * minProfitRate;
+                    callback(null, marketData);
                 }
             });
-    }
+    },
+
+    fetchOrders: function (data, callback) {
+        exchange = ccxt.bittrex({
+            "apiKey": "471b47a06c384e81b24072e9a8739064",
+            "secret": "694025686e9445589787e8ca212b4cff",
+            "enableRateLimit": True,
+        });
+        // orders = exchange.fetch_orders()
+        // print(orders)
+
+        // order = exchange.fetch_order(orders[0]['id'])
+        // print(order)
+        // let order = await exchange.fetchOrder (id, symbol = undefined, params = {})
+        exchange.loadMarkets().then(function (data) {
+            exchange.fetch_orders().then(function (data) {
+                console.log("data")
+            });
+        });
+    },
+
+    placeOrders: function (data, callback) {
+        exchange = ccxt.binance({
+            'apiKey': 'YOUR_API_KEY',
+            'secret': 'YOUR_SECRET',
+            'enableRateLimit': True,
+        });
+
+        var symbol = 'ETH/BTC';
+        var type = 'limit'; //# or 'market'
+        var side = 'sell'; //# or 'buy'
+        var amount = 1.0;
+        var price = 0.060154; //# or None
+
+        exchange.create_order(symbol, type, side, amount, price, params)
+            .then(function (data) {
+                console.log("data");
+            });
+    },
+
+    cancelOrder: function (data, callback) {
+        exchange = ccxt.binance({
+            'apiKey': 'YOUR_API_KEY',
+            'secret': 'YOUR_SECRET',
+            'enableRateLimit': True,
+        });
+
+        exchange.cancelOrder(id, symbol, params)
+            .then(function (data) {
+                console.log("data");
+            });
+    },
 
 };
 module.exports = _.assign(module.exports, exports, model);

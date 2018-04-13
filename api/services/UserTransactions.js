@@ -64,15 +64,15 @@ var model = {
             if (err || _.isEmpty(data1)) {
                 callback(err);
             } else {
-                console.log("data1", data1)
+                // console.log("data1", data1)
                 if (data1.currentBalance >= data.amount) {
                     data1.currentBalance = data1.currentBalance - data.amount;
                     async.waterfall([
                             function (callback) {
-                                User.saveData(data1, callback)
+                                User.saveData(data1, callback);
                             },
                             function (userData, callback) {
-                                UserTransactions.saveData(data, callback)
+                                UserTransactions.saveData(data, callback);
                             }
                         ],
                         function (err, results) {
