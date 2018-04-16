@@ -163,9 +163,9 @@ var controller = {
         }
     },
 
-    placeOrders: function (req, res) {
+    placeOrder: function (req, res) {
         if (req.body) {
-            Markets.placeOrders(req.body, res.callback);
+            Markets.placeOrder(req.body, res.callback);
         } else {
             res.json({
                 value: false,
@@ -189,12 +189,22 @@ var controller = {
         }
     },
 
+    orderPlace: function (req, res) {
+        if (req.body) {
+            Markets.orderPlace(req.body, res.callback);
+        } else {
+            res.json({
+                value: false,
+                data: {
+                    message: "Invalid Request"
+                }
+            })
+        }
+    },
+
 };
 
 module.exports = _.assign(module.exports, controller);
-
-
-
 
 var data = [{
         "symbol": "STORM/BTC",

@@ -75,6 +75,7 @@ global.ccxt = require('ccxt');
 
 global.symbol = 'XRP/BTC'; //TRXBTC CND/ETH ENG/ETH CND/BTC BTG/ETH
 global.minProfitRate = 1.0021;
+global.newRate = 0.00000001;
 
 
 // Mongoose Globals

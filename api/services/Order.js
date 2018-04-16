@@ -1,37 +1,32 @@
 var schema = new Schema({
-    Exchange: {
+    exchange: {
         type: String
     },
-    Type: {
+    type: {
         type: String,
         enum: ['Buy', 'Sell']
     },
-    TypeOfTrade: {
+    typeOfTrade: {
         type: String,
         enum: ['Market', 'Oredrebook']
     },
-    Process: {
+    process: {
         type: String
     },
-    Price: {
+    price: {
         type: Number
     },
-    Status: {
+    status: {
         type: String,
-        enum: ['TransactionMade', 'TransactionPending', 'TransactionCompleted', 'TransactionFailed']
+        enum: ['TransactionMade', 'TransactionPending', 'TransactionCompleted', 'TransactionFailed', 'TransactionPartiallyFilled']
     },
     orderId: {
         type: String
     },
-    OrderJSON: {
+    orderJSON: {
         type: JSON
     },
-    transactionId: {
-        type: Schema.Types.ObjectId,
-        ref: 'UserTransaction',
-        index: true
-    },
-    TransactionJSON: {
+    trades: {
         type: JSON
     }
 });
@@ -43,7 +38,7 @@ schema.plugin(deepPopulate, {
 });
 schema.plugin(uniqueValidator);
 schema.plugin(timestamps);
-module.exports = mongoose.model('Transaction', schema);
+module.exports = mongoose.model('Order', schema);
 
 var exports = _.cloneDeep(require("sails-wohlig-service")(schema, 'transactionId', 'transactionId'));
 var model = {};

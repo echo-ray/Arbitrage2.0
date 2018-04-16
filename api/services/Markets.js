@@ -214,27 +214,20 @@ var model = {
                     var arr = Object.keys(result).map(function (key) {
                         return result[key];
                     });
-                    x ``
                     var min = Math.min.apply(null, arr);
                     var max = Math.max.apply(null, arr);
                     var ratio = max / min;
 
-                    console.log("arrarr", _.findKey(result, function (o) {
-                        return Math.max.apply(null, arr);
-                    }));
+                    // console.log("arrarr", _.findKey(result, function (o) {
+                    //     return Math.max.apply(null, arr);
+                    // }));
+                    // var maxArr = {};
+                    // maxArr[_.findKey(result, function (o) {
+                    //     return Math.max.apply(null, arr);
+                    // })] = max;
+                    // maxArr.max = max;
+                    // console.log("maxarr---", maxArr);
 
-                    var maxArr = {};
-                    maxArr[_.findKey(result, function (o) {
-                        return Math.max.apply(null, arr);
-                    })] = max;
-                    maxArr.max = max;
-                    console.log("maxarr---", maxArr);
-
-                    // console.log("binanaceRateBuy", result.Binance);
-                    // console.log("HitbtcRateBuy", result.Hitbtc);
-                    // console.log("---min", min);
-                    // console.log("---max", max);
-                    // console.log("---ratioBuy", Math.round(ratio * 100000) / 100000);
                     var marketData = {};
                     marketData.binanaceRateBuy = result.Binance;
                     marketData.HitbtcRateBuy = result.Hitbtc;
@@ -243,6 +236,27 @@ var model = {
                     marketData.ratio = Math.round(ratio * 100000) / 100000;
                     marketData.maxLow = max / minProfitRate;
                     callback(null, marketData);
+
+                    // if (ratio <= minProfitRate) {
+                    // if (min >= marketData.maxLow) {
+                    console.log("---------")
+                    var orderData = {};
+                    orderData.type = 'Buy';
+                    orderData.typeOfTrade = 'Oredrebook';
+                    orderData.price = 300;
+                    Markets.orderPlace(orderData, function (err, data) {})
+                    //         } else {
+                    //             Order.find({}).limit(1).exec(function (err, data1) {
+                    //                 if (err || _.isEmpty(data1)) {
+                    //                     // callback(err, null)
+                    //                 } else {
+                    //                     Markets.cancelOrder(data1.orderId, function () {
+
+                    //                     });
+                    //                 }
+                    //             })
+                    //         }
+                    //     }
                 }
             });
     },
@@ -306,23 +320,24 @@ var model = {
         });
     },
 
-    placeOrders: function (data, callback) {
-        exchange = ccxt.binance({
-            'apiKey': 'YOUR_API_KEY',
-            'secret': 'YOUR_SECRET',
-            'enableRateLimit': True,
-        });
+    placeOrder: function (data, callback) {
+        // exchange = ccxt.binance({
+        //     'apiKey': 'YOUR_API_KEY',
+        //     'secret': 'YOUR_SECRET',
+        //     'enableRateLimit': True,
+        // });
 
-        var symbol = 'ETH/BTC';
-        var type = 'limit'; //# or 'market'
-        var side = 'sell'; //# or 'buy'
-        var amount = 1.0;
-        var price = 0.060154; //# or None
+        // var symbol = symbol;
+        // var type = 'limit'; //# or 'market'
+        // var side = 'buy'; //# or 'sell'
+        // var amount = 1.0;
+        // var price = 0.060154; //# or None
 
-        exchange.create_order(symbol, type, side, amount, price, params)
-            .then(function (data) {
-                console.log("data");
-            });
+        // exchange.create_order(symbol, type, side, amount, price, params)
+        //     .then(function (data) {
+        //         console.log("data");
+        //     });
+        console.log("data", data + newRate);
     },
 
     cancelOrder: function (data, callback) {
@@ -337,6 +352,47 @@ var model = {
                 console.log("data");
             });
     },
+
+    orderPlace: function (data, callback) {
+        Order.find({}).limit(1).sort({
+            createdAt: -1
+        }).exec(function (err, data1) {
+            if (err) {
+                callback(err, null)
+            } else if (_.isEmpty(data1)) {
+                console.log("data1data1-", data1)
+                // Markets.placeOrder(data.min, function (err, data2) {
+                var dataToSend = {};
+                dataToSend.orderId = 'dsaad';
+                dataToSend.orderJSON = 'asdaadsad';
+                dataToSend.type = data.type;
+                dataToSend.typeOfTrade = data.typeOfTrade;
+                dataToSend.status = 'TransactionPending';
+                dataToSend.price = data.price;
+                Order.saveData(dataToSend, callback);
+                // });
+            } else {
+                console.log("#####")
+                if (data1[0].price < data.price) {
+                    console.log("##-----##")
+                    // Markets.cancelOrder(data1.orderId, function (err, data2) {
+                    data1[0].status = 'TransactionPartiallyFilled';
+                    Order.saveData(data1[0], callback);
+                    // })
+                    // Markets.placeOrder(data.min, function (err, data2) {
+                    var dataToSend = {};
+                    dataToSend.orderId = 'data2.id';
+                    dataToSend.orderJSON = 'data2.info';
+                    dataToSend.type = data.type;
+                    dataToSend.typeOfTrade = data.typeOfTrade;
+                    dataToSend.status = 'TransactionPending';
+                    dataToSend.price = data.price;
+                    Order.saveData(dataToSend, callback);
+                    // });
+                }
+            }
+        })
+    }
 
 };
 module.exports = _.assign(module.exports, exports, model);
