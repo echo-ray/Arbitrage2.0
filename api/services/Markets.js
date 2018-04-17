@@ -28,6 +28,7 @@ module.exports = mongoose.model('Markets', schema);
 
 var exports = _.cloneDeep(require("sails-wohlig-service")(schema));
 var model = {
+
     getMaxProfit: function (newArr, name, costInCommission) {
         var weight = _.countBy(newArr, function (n) {
             return _.round(n[name], 1);
@@ -198,12 +199,12 @@ var model = {
         async.parallel({
                 Binance: function (callback) {
                     Markets.getAllOrdersForBinance(data, function (err, data) {
-                        callback(null, data.asks[0][0]);
+                        callback(null, data.asks[0]);
                     });
                 },
                 Hitbtc: function (callback) {
                     Markets.getAllOrdersForHitbtc(data, function (err, data) {
-                        callback(null, data.asks[0][0]);
+                        callback(null, data.asks[0]);
                     });
                 }
             },
@@ -211,52 +212,62 @@ var model = {
                 if (err || _.isEmpty(result)) {
                     callback(err);
                 } else {
-                    var arr = Object.keys(result).map(function (key) {
-                        return result[key];
-                    });
-                    var min = Math.min.apply(null, arr);
-                    var max = Math.max.apply(null, arr);
-                    var ratio = max / min;
+                    var binance = result.Binance[0];
+                    var Hitbtc = result.Hitbtc[0];
+                    var min = [];
+                    var max = [];
+                    var qty = {};
 
-                    // console.log("arrarr", _.findKey(result, function (o) {
-                    //     return Math.max.apply(null, arr);
-                    // }));
-                    // var maxArr = {};
-                    // maxArr[_.findKey(result, function (o) {
-                    //     return Math.max.apply(null, arr);
-                    // })] = max;
-                    // maxArr.max = max;
-                    // console.log("maxarr---", maxArr);
+                    if (binance > Hitbtc) {
+                        max = result.Binance;
+                        min = result.Hitbtc;
+                    } else if (binance < Hitbtc) {
+                        min = result.Binance;
+                        max = result.Hitbtc;
+                    }
+                    var ratio = max[0] / min[0];
+                    var actualRatio = Math.round(ratio * 100000) / 100000;
 
-                    var marketData = {};
-                    marketData.binanaceRateBuy = result.Binance;
-                    marketData.HitbtcRateBuy = result.Hitbtc;
-                    marketData.max = max;
-                    marketData.min = min;
-                    marketData.ratio = Math.round(ratio * 100000) / 100000;
-                    marketData.maxLow = max / minProfitRate;
-                    callback(null, marketData);
+                    console.log("actualRatio", actualRatio);
+                    console.log("min", min);
+                    console.log("max", max);
 
+                    console.log("currentProcess", currentProcess);
+
+                    if (actualRatio > minProfitRate) {
+                        qty = min[1] / 3
+                        if (qty > minimumVolume) {
+                            var orderData = {};
+                            orderData.type = 'Buy';
+                            orderData.typeOfTrade = 'Oredrebook';
+                            orderData.price = 300;
+                            Markets.orderPlace(orderData, function (err, data) {})
+                        }
+                    }
+
+                    // marketData.maxLow = max / minProfitRate;
+                    // callback(null, marketData);
+                    // //qty/3
                     // if (ratio <= minProfitRate) {
-                    // if (min >= marketData.maxLow) {
-                    console.log("---------")
-                    var orderData = {};
-                    orderData.type = 'Buy';
-                    orderData.typeOfTrade = 'Oredrebook';
-                    orderData.price = 300;
-                    Markets.orderPlace(orderData, function (err, data) {})
-                    //         } else {
-                    //             Order.find({}).limit(1).exec(function (err, data1) {
-                    //                 if (err || _.isEmpty(data1)) {
-                    //                     // callback(err, null)
-                    //                 } else {
-                    //                     Markets.cancelOrder(data1.orderId, function () {
+                    //     if (qty > minimumVolume) {
+                    //         console.log("---------")
+                    //         var orderData = {};
+                    //         orderData.type = 'Buy';
+                    //         orderData.typeOfTrade = 'Oredrebook';
+                    //         orderData.price = 300;
+                    //         Markets.orderPlace(orderData, function (err, data) {}) // min exchabge store qty of max exchange 
+                    //     } else {
+                    //         Order.find({}).limit(1).exec(function (err, data1) {
+                    //             if (err || _.isEmpty(data1)) {
+                    //                 // callback(err, null)
+                    //             } else {
+                    //                 Markets.cancelOrder(data1.orderId, function () {
 
-                    //                     });
-                    //                 }
-                    //             })
-                    //         }
+                    //                 });
+                    //             }
+                    //         })
                     //     }
+                    // }
                 }
             });
     },
@@ -354,45 +365,134 @@ var model = {
     },
 
     orderPlace: function (data, callback) {
-        Order.find({}).limit(1).sort({
-            createdAt: -1
-        }).exec(function (err, data1) {
-            if (err) {
-                callback(err, null)
-            } else if (_.isEmpty(data1)) {
-                console.log("data1data1-", data1)
-                // Markets.placeOrder(data.min, function (err, data2) {
-                var dataToSend = {};
-                dataToSend.orderId = 'dsaad';
-                dataToSend.orderJSON = 'asdaadsad';
-                dataToSend.type = data.type;
-                dataToSend.typeOfTrade = data.typeOfTrade;
-                dataToSend.status = 'TransactionPending';
-                dataToSend.price = data.price;
-                Order.saveData(dataToSend, callback);
-                // });
-            } else {
-                console.log("#####")
-                if (data1[0].price < data.price) {
-                    console.log("##-----##")
-                    // Markets.cancelOrder(data1.orderId, function (err, data2) {
-                    data1[0].status = 'TransactionPartiallyFilled';
-                    Order.saveData(data1[0], callback);
-                    // })
+        if (currentProcess != false) {
+            console.log("asdsdas");
+            Process.findOne({
+                _id: currentProcess
+            }).limit(1).sort({
+                createdAt: -1
+            }).exec(function (err, data1) {
+                if (err) {
+                    callback(err, null)
+                } else if (_.isEmpty(data1)) {
+                    console.log("data1data1-", data1)
                     // Markets.placeOrder(data.min, function (err, data2) {
                     var dataToSend = {};
-                    dataToSend.orderId = 'data2.id';
-                    dataToSend.orderJSON = 'data2.info';
+                    dataToSend.orderId = 'dsaad';
+                    dataToSend.orderJSON = 'asdaadsad';
                     dataToSend.type = data.type;
                     dataToSend.typeOfTrade = data.typeOfTrade;
                     dataToSend.status = 'TransactionPending';
                     dataToSend.price = data.price;
-                    Order.saveData(dataToSend, callback);
+                    async.parallel([
+                            function (callback) {
+                                Order.saveData(dataToSend, callback);
+                            },
+                            function (callback) {
+                                Process.saveData(dataToSend, callback);
+                            }
+                        ],
+                        function (err, data) {
+                            if (err) {
+                                console.log("error occured");
+                                // callback(null, err);
+                            } else {
+                                callback(null, data);
+                            }
+                        });
                     // });
+                } else {
+                    if (data1[0].price < data.price) {
+                        async.parallel([
+                            function (callback) {
+                                // Markets.cancelOrder(data1.orderId, function (err, data2) {
+                                data1[0].status = 'TransactionPartiallyFilled';
+                                Order.saveData(data1[0], callback);
+                                // })
+                            },
+                            function (callback) {
+                                // Markets.placeOrder(data.min, function (err, data2) {
+                                var dataToSend = {};
+                                dataToSend.orderId = 'data2.id';
+                                dataToSend.orderJSON = 'data2.info';
+                                dataToSend.type = data.type;
+                                dataToSend.typeOfTrade = data.typeOfTrade;
+                                dataToSend.status = 'TransactionPending';
+                                dataToSend.price = data.price;
+                                async.parallel([
+                                        function (callback) {
+                                            Order.saveData(dataToSend, callback);
+                                        },
+                                        function (callback) {
+                                            Process.saveData(dataToSend, callback);
+                                        }
+                                    ],
+                                    function (err, data) {
+                                        if (err) {
+                                            console.log("error occured");
+                                            // callback(null, err);
+                                        } else {
+                                            callback(null, data);
+                                        }
+                                    });
+                                // });
+                            }
+                        ], function (err, data) {
+                            if (err) {
+                                callback(err, null);
+                            } else {
+                                callback(null, data);
+                            }
+                        });
+                    }
                 }
+            })
+        } else {
+            console.log("data1data1-", data1)
+            // Markets.placeOrder(data.min, function (err, data2) {
+            var dataToSend = {};
+            dataToSend.orderId = 'dsaad';
+            dataToSend.orderJSON = 'asdaadsad';
+            dataToSend.type = data.type;
+            dataToSend.typeOfTrade = data.typeOfTrade;
+            dataToSend.status = 'TransactionPending';
+            dataToSend.price = data.price;
+            async.parallel([
+                    function (callback) {
+                        Order.saveData(dataToSend, callback);
+                    },
+                    function (callback) {
+                        Process.saveData(dataToSend, callback);
+                    }
+                ],
+                function (err, data) {
+                    if (err) {
+                        console.log("error occured");
+                        // callback(null, err);
+                    } else {
+                        callback(null, data);
+                    }
+                });
+            // });
+        }
+    },
+
+    getOrderData: function (data, callback) {
+        Order.find({
+            "accessLevel": {
+                $in: ["TransactionPending", "TransactionPartiallyFilled"]
+            }
+        }).limit(1).exec(function (err, data1) {
+            if (err || _.isEmpty(data1)) {
+                // callback(err, null)
+            } else {
+                Markets.fetchOrders(data1.orderId, function (err, data) {
+                    var ordrData = {};
+                    //trades
+                    Order.saveData(dataToSend, callback);
+                });
             }
         })
     }
-
 };
 module.exports = _.assign(module.exports, exports, model);

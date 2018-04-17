@@ -10,9 +10,6 @@ var schema = new Schema({
         type: String,
         enum: ['Market', 'Oredrebook']
     },
-    process: {
-        type: String
-    },
     price: {
         type: Number
     },
