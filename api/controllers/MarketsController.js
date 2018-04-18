@@ -150,12 +150,61 @@ var controller = {
         }
     },
 
+    fetchOrders: function (req, res) {
+        if (req.body) {
+            Markets.fetchOrders(req.body, res.callback);
+        } else {
+            res.json({
+                value: false,
+                data: {
+                    message: "Invalid Request"
+                }
+            })
+        }
+    },
+
+    placeOrder: function (req, res) {
+        if (req.body) {
+            Markets.placeOrder(req.body, res.callback);
+        } else {
+            res.json({
+                value: false,
+                data: {
+                    message: "Invalid Request"
+                }
+            })
+        }
+    },
+
+    cancelOrder: function (req, res) {
+        if (req.body) {
+            Markets.cancelOrder(req.body, res.callback);
+        } else {
+            res.json({
+                value: false,
+                data: {
+                    message: "Invalid Request"
+                }
+            })
+        }
+    },
+
+    orderPlace: function (req, res) {
+        if (req.body) {
+            Markets.orderPlace(req.body, res.callback);
+        } else {
+            res.json({
+                value: false,
+                data: {
+                    message: "Invalid Request"
+                }
+            })
+        }
+    },
+
 };
 
 module.exports = _.assign(module.exports, controller);
-
-
-
 
 var data = [{
         "symbol": "STORM/BTC",

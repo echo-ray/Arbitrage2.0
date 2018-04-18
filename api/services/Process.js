@@ -1,29 +1,34 @@
 var schema = new Schema({
-    ExchangeMin: {
+    exchangeMin: {
         type: Number,
         required: true
     },
-    ExchangeMax: {
+    exchangeMax: {
         type: Number,
         required: true
     },
-    Quantity: {
+    quantity: {
         type: Number,
         required: true
     },
-    PriceBuy: {
+    priceBuy: {
         type: Number,
         required: true
     },
-    PriceSell: {
+    priceSell: {
         type: Number,
         required: true
     },
-    Status: {
+    status: {
         type: String,
         enum: ['Transaction1Added', 'Transaction2Added', 'BothTransactionAdded',
             'Transaction1Completed', 'Transaction2Completed', 'TransactionCompleted', 'TransactionFailed'
         ]
+    },
+    order: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        index: true
     }
 
 
