@@ -25,5 +25,5 @@ server {
 server {
 	listen 80;
 	server_name shopmyway.co.in www.shopmyway.co.in;
-	return 301 https://freshflow.wohlig.co.in$request_uri;
+	return 301 https://shopmyway.co.in$request_uri;
 }
