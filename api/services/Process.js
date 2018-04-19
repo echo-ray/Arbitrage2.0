@@ -27,18 +27,24 @@ var schema = new Schema({
     },
     order: {
         type: Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'Order',
         index: true
     }
 
 
 });
 
-schema.plugin(deepPopulate, {});
+schema.plugin(deepPopulate, {
+    populate: {
+        order: {
+            select: ""
+        }
+    }
+});
 schema.plugin(uniqueValidator);
 schema.plugin(timestamps);
 module.exports = mongoose.model('Process', schema);
 
-var exports = _.cloneDeep(require("sails-wohlig-service")(schema));
+var exports = _.cloneDeep(require("sails-wohlig-service")(schema, "order", "order"));
 var model = {};
 module.exports = _.assign(module.exports, exports, model);

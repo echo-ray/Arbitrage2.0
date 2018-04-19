@@ -1,3 +1,4 @@
+var cron = require('node-cron');
 var schema = new Schema({
     name: {
         type: String,
@@ -174,6 +175,12 @@ var model = {
 
     //get orderbooks
 
+    /**
+     *  fetch orderbook for binance .
+     * 
+     *  @param  {String} symbol -   specific market symbol.
+     *  @returns  {callback} callback -   Return buy and sell orderbook.
+     */
     getAllOrdersForBinance: function (data, callback) {
         var exchange = new ccxt.binance();
         exchange.loadMarkets().then(function (data) {
@@ -183,6 +190,12 @@ var model = {
         });
     },
 
+    /**
+     *  fetch orderbook for hitbtc.
+     * 
+     *  @param  {String} symbol -   specific market symbol.
+     *  @returns  {callback} callback -   Return buy and sell orderbook.
+     */
     getAllOrdersForHitbtc: function (data, callback) {
         var exchange = new ccxt.hitbtc2();
         exchange.loadMarkets().then(function (data) {
@@ -195,6 +208,11 @@ var model = {
         });
     },
 
+    /**
+     *  compare buy(ask) of two markets and finding min and max rate from each market .
+     * 
+     *  @param  {callback} callback -   Return min,max,ratio,min,maxLow rates .
+     */
     compareHitbtcAndBinanceBuy: function (data, callback) {
         async.parallel({
                 Binance: function (callback) {
@@ -228,50 +246,25 @@ var model = {
                     var ratio = max[0] / min[0];
                     var actualRatio = Math.round(ratio * 100000) / 100000;
 
-                    console.log("actualRatio", actualRatio);
-                    console.log("min", min);
-                    console.log("max", max);
-
-                    console.log("currentProcess", currentProcess);
-
-                    if (actualRatio > minProfitRate) {
-                        qty = min[1] / 3
-                        if (qty > minimumVolume) {
-                            var orderData = {};
-                            orderData.type = 'Buy';
-                            orderData.typeOfTrade = 'Oredrebook';
-                            orderData.price = 300;
-                            Markets.orderPlace(orderData, function (err, data) {})
-                        }
-                    }
-
-                    // marketData.maxLow = max / minProfitRate;
-                    // callback(null, marketData);
-                    // //qty/3
-                    // if (ratio <= minProfitRate) {
-                    //     if (qty > minimumVolume) {
-                    //         console.log("---------")
-                    //         var orderData = {};
-                    //         orderData.type = 'Buy';
-                    //         orderData.typeOfTrade = 'Oredrebook';
-                    //         orderData.price = 300;
-                    //         Markets.orderPlace(orderData, function (err, data) {}) // min exchabge store qty of max exchange 
-                    //     } else {
-                    //         Order.find({}).limit(1).exec(function (err, data1) {
-                    //             if (err || _.isEmpty(data1)) {
-                    //                 // callback(err, null)
-                    //             } else {
-                    //                 Markets.cancelOrder(data1.orderId, function () {
-
-                    //                 });
-                    //             }
-                    //         })
-                    //     }
-                    // }
+                    var marketData = {};
+                    marketData.binanaceRateSell = result.Binance;
+                    marketData.HitbtcRateSell = result.Hitbtc;
+                    marketData.max = max;
+                    marketData.min = min;
+                    marketData.ratio = actualRatio;
+                    marketData.maxLow = max[0] / minProfitRate;
+                    qty = max[1] / 3;
+                    marketData.canMakeOrder = (actualRatio > global.minProfitRate && qty > global.minimumVolume);
+                    callback(null, marketData);
                 }
             });
     },
 
+    /**
+     *  compare sell(bid) of two markets and finding min and max rate from each market .
+     * 
+     *  @param  {callback} callback -   Return min,max,ratio,min,maxLow rates .
+     */
     compareHitbtcAndBinanceSell: function (data, callback) {
         async.parallel({
                 Binance: function (callback) {
@@ -289,29 +282,52 @@ var model = {
                 if (err || _.isEmpty(result)) {
                     callback(err);
                 } else {
-                    var arr = Object.keys(result).map(function (key) {
-                        return result[key];
-                    });
-                    var min = Math.min.apply(null, arr);
-                    var max = Math.max.apply(null, arr);
-                    var ratio = max / min;
-                    // console.log("binanaceRateSell", result.Binance);
-                    // console.log("HitbtcRateSell", result.Hitbtc);
-                    // console.log("---min", min);
-                    // console.log("---max", max);
-                    // console.log("---ratioSell", Math.round(ratio * 100000) / 100000);
+                    var binance = result.Binance[0];
+                    var Hitbtc = result.Hitbtc[0];
+                    var min = [];
+                    var max = [];
+                    var qty = {};
+
+                    if (binance > Hitbtc) {
+                        max = result.Binance;
+                        min = result.Hitbtc;
+                    } else if (binance < Hitbtc) {
+                        min = result.Binance;
+                        max = result.Hitbtc;
+                    }
+                    var ratio = max[0] / min[0];
+                    var actualRatio = Math.round(ratio * 100000) / 100000;
+
                     var marketData = {};
                     marketData.binanaceRateSell = result.Binance;
                     marketData.HitbtcRateSell = result.Hitbtc;
                     marketData.max = max;
                     marketData.min = min;
-                    marketData.ratio = Math.round(ratio * 100000) / 100000;
-                    marketData.minHigh = min * minProfitRate;
+                    marketData.ratio = actualRatio;
+                    marketData.minHigh = min[0] * minProfitRate;
+                    qty = max[1] / 3;
                     callback(null, marketData);
+
+                    if (actualRatio > minProfitRate) {
+                        qty = min[1] / 3;
+                        if (qty > minimumVolume) {
+                            var orderData = {};
+                            orderData.type = 'Buy';
+                            orderData.typeOfTrade = 'Oredrebook';
+                            orderData.price = 300;
+                            Markets.orderPlace(orderData, function (err, data) {})
+                        }
+                    }
                 }
             });
     },
 
+    /**
+     *  fetch a perticular order.
+     * 
+     *  @param  {String} id -   need order id .
+     *  @returns  {callback} callback -   Return order details related to the perticular order.
+     */
     fetchOrders: function (data, callback) {
         exchange = ccxt.bittrex({
             "apiKey": "471b47a06c384e81b24072e9a8739064",
@@ -331,6 +347,16 @@ var model = {
         });
     },
 
+    /**
+     *  place a order .
+     * 
+     *  @param  {String} symbol -market symbol   
+     *  @param  {String} type - 'limit'; //# or 'market'
+     *  @param  {String} side -'buy'; //# or 'sell'
+     *  @param  {Number} amount - amount
+     *  @param  {Number} price -price           
+     *  @returns  {callback} callback -   Return order id and json.
+     */
     placeOrder: function (data, callback) {
         // exchange = ccxt.binance({
         //     'apiKey': 'YOUR_API_KEY',
@@ -344,13 +370,19 @@ var model = {
         // var amount = 1.0;
         // var price = 0.060154; //# or None
 
-        // exchange.create_order(symbol, type, side, amount, price, params)
-        //     .then(function (data) {
-        //         console.log("data");
-        //     });
+        exchange.create_order(symbol, type, side, amount, price, params)
+            .then(function (data) {
+                console.log("data");
+            });
         console.log("data", data + newRate);
     },
 
+    /**
+     *  cancel a order.
+     * 
+     *  @param  {String} id -   specific market symbol.
+     *  @returns  {callback} callback -   Return cancel order details.
+     */
     cancelOrder: function (data, callback) {
         exchange = ccxt.binance({
             'apiKey': 'YOUR_API_KEY',
@@ -364,135 +396,133 @@ var model = {
             });
     },
 
+    /**
+     *  checking conditions and placing a order .
+     * 
+     *  @return  {callback} callback -   placed order detials
+     */
     orderPlace: function (data, callback) {
-        if (currentProcess != false) {
-            console.log("asdsdas");
-            Process.findOne({
-                _id: currentProcess
-            }).limit(1).sort({
-                createdAt: -1
-            }).exec(function (err, data1) {
-                if (err) {
-                    callback(err, null)
-                } else if (_.isEmpty(data1)) {
-                    console.log("data1data1-", data1)
+        async.waterfall([
+            // Compare Rates and Check the Posibility
+            function (callback) {
+                Markets.compareHitbtcAndBinanceBuy(data, callback);
+            },
+            // place an order 
+            function (compData, callback) {
+                if (compData.canMakeOrder == true) {
                     // Markets.placeOrder(data.min, function (err, data2) {
                     var dataToSend = {};
                     dataToSend.orderId = 'dsaad';
                     dataToSend.orderJSON = 'asdaadsad';
-                    dataToSend.type = data.type;
-                    dataToSend.typeOfTrade = data.typeOfTrade;
+                    orderData.type = 'Buy';
+                    orderData.typeOfTrade = 'Oredrebook';
                     dataToSend.status = 'TransactionPending';
-                    dataToSend.price = data.price;
+                    orderData.price = 300;
                     async.parallel([
+                            //save placed order 
                             function (callback) {
                                 Order.saveData(dataToSend, callback);
                             },
+                            //save process of placed order and set global.currentProcess variable
                             function (callback) {
-                                Process.saveData(dataToSend, callback);
+                                Process.saveData(dataToSend, function (err, data) {
+                                    global.currentProcess = data._id;
+                                    callback(null, data);
+                                });
                             }
                         ],
-                        function (err, data) {
-                            if (err) {
-                                console.log("error occured");
-                                // callback(null, err);
-                            } else {
-                                callback(null, data);
-                            }
-                        });
+                        callback);
                     // });
-                } else {
-                    if (data1[0].price < data.price) {
-                        async.parallel([
-                            function (callback) {
-                                // Markets.cancelOrder(data1.orderId, function (err, data2) {
-                                data1[0].status = 'TransactionPartiallyFilled';
-                                Order.saveData(data1[0], callback);
-                                // })
-                            },
-                            function (callback) {
-                                // Markets.placeOrder(data.min, function (err, data2) {
-                                var dataToSend = {};
-                                dataToSend.orderId = 'data2.id';
-                                dataToSend.orderJSON = 'data2.info';
-                                dataToSend.type = data.type;
-                                dataToSend.typeOfTrade = data.typeOfTrade;
-                                dataToSend.status = 'TransactionPending';
-                                dataToSend.price = data.price;
-                                async.parallel([
-                                        function (callback) {
-                                            Order.saveData(dataToSend, callback);
-                                        },
-                                        function (callback) {
-                                            Process.saveData(dataToSend, callback);
-                                        }
-                                    ],
-                                    function (err, data) {
-                                        if (err) {
-                                            console.log("error occured");
-                                            // callback(null, err);
-                                        } else {
-                                            callback(null, data);
-                                        }
-                                    });
-                                // });
-                            }
-                        ], function (err, data) {
-                            if (err) {
-                                callback(err, null);
-                            } else {
-                                callback(null, data);
-                            }
-                        });
-                    }
                 }
-            })
-        } else {
-            console.log("data1data1-", data1)
-            // Markets.placeOrder(data.min, function (err, data2) {
-            var dataToSend = {};
-            dataToSend.orderId = 'dsaad';
-            dataToSend.orderJSON = 'asdaadsad';
-            dataToSend.type = data.type;
-            dataToSend.typeOfTrade = data.typeOfTrade;
-            dataToSend.status = 'TransactionPending';
-            dataToSend.price = data.price;
-            async.parallel([
-                    function (callback) {
-                        Order.saveData(dataToSend, callback);
-                    },
-                    function (callback) {
-                        Process.saveData(dataToSend, callback);
-                    }
-                ],
-                function (err, data) {
-                    if (err) {
-                        console.log("error occured");
-                        // callback(null, err);
-                    } else {
-                        callback(null, data);
-                    }
-                });
-            // });
-        }
+            }
+        ], callback);
     },
 
-    getOrderData: function (data, callback) {
-        Order.find({
-            "accessLevel": {
-                $in: ["TransactionPending", "TransactionPartiallyFilled"]
-            }
-        }).limit(1).exec(function (err, data1) {
-            if (err || _.isEmpty(data1)) {
-                // callback(err, null)
-            } else {
-                Markets.fetchOrders(data1.orderId, function (err, data) {
-                    var ordrData = {};
-                    //trades
-                    Order.saveData(dataToSend, callback);
+    /**
+     *  check a order  .
+     * 
+     *  @return  {callback} callback -   Return current status of order.
+     */
+    checkOrderData: function (data, callback) {
+        async.waterfall([
+            //find process
+            function (callback) {
+                Process.findOne({
+                    _id: global.currentProcess
+                }).deepPopulate("order").exec(function (err, data) {
+                    if (err || _.isEmpty(data)) {
+                        callback(err, null);
+                    } else {
+                        callback(err, data);
+                    }
                 });
+            },
+            //fetch orderDetails match 2 conditions 1. filled 2.qty and ratio diff
+            function (processData, callback) {
+                // Markets.fetchOrders(data1.order, function (err, data2) {
+                if (data2.filled) {
+                    async.parallel([
+                        function (callback) {
+                            // Markets.cancelOrder(data1.orderId, function (err, data2) {
+                            global.currentProcess = false;
+                            data1[0].status = 'TransactionPartiallyFilled';
+                            Order.saveData(data1.order._id, callback);
+                            // })
+                        },
+                        function (callback) {
+                            // Markets.placeOrder(data.min, function (err, data2) {  //place sell order
+                            var dataToSend = {};
+                            dataToSend.orderId = 'data2.id';
+                            dataToSend.orderJSON = 'data2.info';
+                            dataToSend.type = 'type';
+                            dataToSend.typeOfTrade = 'typeOfTrade';
+                            dataToSend.status = 'TransactionPending';
+                            dataToSend.price = 'price';
+                            async.waterfall([
+                                function (callback) {
+                                    Order.saveData(dataToSend, callback);
+                                },
+                                function (data, callback) {
+                                    Process.saveData(dataToSend, function (err, data) {
+                                        currentProcess = data._id;
+                                        callback(null, data);
+                                    });
+                                }
+                            ], callback);
+                            // });
+                        }
+                    ], callback);
+                } else {
+                    async.waterfall([
+                        // Compare Rates and Check the Posibility
+                        function (callback) {
+                            Markets.compareHitbtcAndBinanceBuy(data, callback);
+                        },
+                        // place an order 
+                        function (compData, callback) {
+                            if (compData.canMakeOrder == false) {
+                                // Markets.cancelOrder(data1.orderId, function (err, data2) {
+                                global.currentProcess = false;
+                                data1[0].status = 'TransactionPartiallyFilled';
+                                Order.saveData(data1.order._id, callback);
+                                // })
+                            }
+                        }
+                    ], callback);
+                }
+                // });
             }
-        })
+        ])
     }
+
 };
+
+// cron.schedule('*/5 * * * *', function () {
+//     if (global.currentProcess != false) {
+//         Markets.checkOrderData(global.currentProcess, callback);
+//     } else {
+//         Markets.orderPlace(data, callback);
+//     }
+// });
+
 module.exports = _.assign(module.exports, exports, model);
