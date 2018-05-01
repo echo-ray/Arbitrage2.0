@@ -1,4 +1,3 @@
-var cron = require('node-cron');
 var schema = new Schema({
     name: {
         type: String,

@@ -32,7 +32,7 @@ var controller = {
             },
             function (unionSymbols, callback) {
                 console.log(unionSymbols.length);
-                unionSymbols = _.slice(unionSymbols, 20, 40);
+                unionSymbols = _.slice(unionSymbols, 0, 150);
                 console.log(unionSymbols.length);
                 async.concatSeries(unionSymbols, function (symbol, callback) {
                     async.parallel({
